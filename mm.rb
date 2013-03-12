@@ -1,23 +1,31 @@
-print "hello world!\n"
-results = `git fetch bare`
-puts results
-results = `git checkout master`
-puts results
-results = `git merge bare/master`
-puts results
-results = `git checkout integration`
-puts results
-results = `git merge bare/integration`
-puts results
-results = `git merge master`
-puts results
-results = `git push bare integration`
-puts results
-results = `git checkout trunk`
-puts results
-results = `git merge bare/trunk`
-puts results
-results = `git merge integration`
-puts results
-results = `git push bare trunk`
-puts results
+require 'rubygems'
+require 'json'
+require 'Open3'
+
+if !File.exist?('.exp-flow')
+  puts "In order to use magic merge, you need to have a .exp-flow file, which has a Magic Merge section in it"
+  exit 
+end
+
+file = open(".exp-flow")
+json = file.read
+
+parsed = JSON.parse(json)
+
+puts `git fetch bare`
+parsed["MagicMerge"].each do |from, to|
+  puts "Doing the magic merge from #{from} to #{to}"
+  puts `git checkout #{to}`
+  puts `git pull bare #{to}`
+  puts `git merge bare/#{from}`
+  if !$?.success?
+    puts "something has gone wrong, we should send mail, but we will stop instead"
+    exit
+  end
+  puts `git push bare #{to}`
+  if !$?.success?
+    puts "something has gone wrong pushing to bare, going to stop, should send mail"
+    exit
+  end
+end
+
