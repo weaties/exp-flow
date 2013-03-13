@@ -1,0 +1,10 @@
+$ cat .exp-flow
+{
+    "Promotion_paths": [
+        ["integration", "master"],
+        ["int-milan", "master"],
+        ["trunk", "integration"],
+        ["dev", "trunk"]
+    ]
+
+}
