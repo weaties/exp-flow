@@ -27,15 +27,16 @@ if !is_the_branch_in_our_list
   exit
 end
 puts "we are going to promote #{branch_to_promote} into #{branch_to_promote_into}"
-puts `git fetch bare`
+puts `git fetch origin`
 puts `git checkout #{branch_to_promote_into}`
-puts `git pull bare #{branch_to_promote_into}`
-puts `git merge bare/#{branch_to_promote}`
+puts `git pull`
+puts `git pull origin #{branch_to_promote_into}`
+puts `git merge origin/#{branch_to_promote}`
 if !$?.success?
   puts "something seems to have gone wrong with merge- stopping"
   exit
 end
-puts `git push bare #{branch_to_promote_into}`
+puts `git push origin #{branch_to_promote_into}`
 if !$?.success?
   puts "something seems to have gone wrong push - stopping"
   exit
