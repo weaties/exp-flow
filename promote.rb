@@ -15,7 +15,7 @@ parsed = JSON.parse(json)
 
 is_the_branch_in_our_list=false
 branch_to_promote_into = nil
-parsed["MagicMerge"].each do |to, from|
+parsed["Promotion_paths"].each do |from, to|
   if from == branch_to_promote
     is_the_branch_in_our_list = true
     branch_to_promote_into = to
@@ -23,7 +23,7 @@ parsed["MagicMerge"].each do |to, from|
 end
 if !is_the_branch_in_our_list
   puts "you asked to promote #{branch_to_promote} but it is not in the list of branches we are managing"
-  parsed["MagicMerge"].each { |to, from| puts "#{from} ==> #{to}"}
+  parsed["Promotion_paths"].each { |from, to| puts "#{from} ==> #{to}"}
   exit
 end
 puts "we are going to promote #{branch_to_promote} into #{branch_to_promote_into}"

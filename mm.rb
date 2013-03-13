@@ -13,7 +13,7 @@ json = file.read
 parsed = JSON.parse(json)
 
 puts `git fetch bare`
-parsed["MagicMerge"].each do |from, to|
+parsed["Promotion_paths"].each do |to, from|
   puts "Doing the magic merge from #{from} to #{to}"
   puts `git checkout #{to}`
   puts `git pull bare #{to}`
