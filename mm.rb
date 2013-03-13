@@ -18,6 +18,7 @@ parsed["Promotion_paths"].each do |to, from|
   puts `git checkout #{from}`
   puts `git pull`
   puts `git checkout #{to}`
+  puts `git pull`
   puts `git merge #{from}`
   if !$?.success?
     puts "something has gone wrong, we should send mail, but we will stop instead"
