@@ -2,6 +2,7 @@ require "rubygems"
 require "json"
 require "logger"
 require "date"
+require "time"
 
 log = Logger.new(STDOUT)
 log.level=Logger::DEBUG
@@ -48,8 +49,7 @@ if !$?.success?
   exit
 end
 if label_base_to_create != ""
-  tag_name = label_base_to_create + "/#{rand(100)}"
-  puts "the tag I want to create is #{tag_name}"
+  tag_name = label_base_to_create + "/#{Time.now.utc.iso8601.gsub("-","/").gsub(":","/").gsub("T","/T")}"
   puts `git tag -a -m "Promoting #{branch_to_promote} into #{branch_to_promote_into} by #{ENV["USER"]}" #{tag_name}`
   puts `git push origin #{tag_name}`
 end
