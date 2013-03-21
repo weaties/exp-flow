@@ -7,39 +7,50 @@ This project serves two purposes
 
 # Promotion strategy
 
-the driver behind this tool is that at Expedia we manage 4 environments that have to all be in sync and we want to automate as much of this as we possibly can, and have that strategy always adhere to the principles of
+The driver behind this set of tooling is to automate as much of our development, promotion, and environment management strategies as we can, so that the 4 environments that Expedia Supports (Trunk, integration, live, hotfix) can always be running in a known good state, and adhere to the following principles.
 
 * Always know what is on the live site
 * Always be able to change the live site
 * Always be able to test the live site
 
-And then automate the shit out of all of that.
-
-So the general idea here is that we promote our work like this
+The general idea here is that we promote our work like this
 
 # Promotion path through environments
 
-## dev -> trunk
+## Master -> trunk
 
-developers, when they are "done" with there work, will put it into the trunk environment, which is a shared environment for the entire organization, and represents the latest work of all combined efforts.  The expectation here, is that everything should always be working in the trunk environment.
+developers, when they are "done" with there work will issue a pull request from their topic branch, into the master branch via github.  
+
+After the pull request has been reviewed and discussed, it will be merged into the Master branch.  Once merged into master, the build pipeline for the application will.
+
+* Build
+* Unit test
+* Smoke Test
+* Functional test
+
+The commit on the master branch.   If the commit passes through that part of the pipeline, the Master branch will be fast forward merged into the trunk branch. 
+
+Deployment automation kicks in here, and automatically and shuntlessly props the build that the trunk branch points to into the trunk environment.  
+
+The trunk environment is a shared end 2 end environment that we expect all applicaitons to be deployed to an maintained in.  And represents the very latest tested work of all combined efforts.
 
 Applications in the trunk environment, tend to lean on dependencies hosted in the integration environment.
 
 ## trunk -> integration
 
-The integration environment is for all of the n+1 versions of every component that we plan to deploy to the live site.  All applications are expected to be deployed shuntlessly to this environment, and take builds of what has been running in trunk that we now believe are "RC" ready.   There is no minimum required time that a component is expected to be in the integration environment before it is released, but it is intended that everything that is deployed to the live environment, is working in an integrated manner in the integration environment
+The integration environment is for all of the n+1 versions of every component that we plan to deploy to the live site.  All applications are expected to be deployed shuntlessly to this environment, and take builds of what has been running in trunk that we now believe are "RC" ready.   There is no minimum required time that a component is expected to be in the integration environment before it is released for deployment to the live environment, but it is intended that everything that is deployed to the live environment, is working in an integrated manner in the integration environment
 
 the integration environment should be self referential, and depend only on other components hosted in the integration environments
 
 ## integration -> live
 
-once a component has been proven to work in the integration, it is clear to be deployed to the live environment (coordination with CAB not withstanding)
+once a component has been proven to work in the integration, it is clear to be deployed to the live environment (coordination with CAB is outside of the scope of exp-flow)
 
 Anything that is propped to the live environment is also expected to be deployed to the int-milan environment to support the possible need to hotfix the component, or other components that may depend on it.  
 
-## int-milan -> live
+## hotfix (int-milan) -> live
 
-if a component needs to be changed on the live site, but it is not possible to put test the new version in the integration environment for whatever reason, then the new version of the component, should be able to be propped into the int-milan environment, verified, and then that version deployed to the live site.
+if a component needs to be changed on the live site, but it is not possible to test the new version in the integration environment for whatever reason, then the new version of the component, should be able to be propped into the hotfix  (also known as int-milan) environment, verified, and then that version deployed to the live site.
 
 # Managing required changes post promotion
 
@@ -52,11 +63,11 @@ So we have to support the ability to make that change to the integration environ
 
 ## Implicit integration
 
-in the perfore world we use implicit integration to make sure that changes that are made to the components running in the integration environment are automatically integrated into the trunk environment.
+in the perforce world we use implicit integration to make sure that changes that are made to the components running in the integration environment are automatically integrated into the trunk environment.
 
 ## Magic Merges
 
-In the git world, it is possible to also automagically merge changes that are made to the live environment into the integration environment, and in the integration environment to the trunk environment.
+In the git world, it is possible to also automagically merge changes that are made to the live environment into the integration environment, and in the integration environment to the trunk environment.  Changes made to the trunk enviornment are merged into the master branch, and are avilable for developers and testers of the applicaiton to interact with.
 
 Again, in the perfect world that we want to live in, we would never need to rely on this merge path, since all changes would would only get to the live site by being deployed to trunk, then integration, and then to live, and then to hotfix.
 
@@ -73,9 +84,9 @@ Combine that with the fact that it is the combination of the path in perforce (a
 
 Every commit in git is unique, and if any two people can checkout the same commit hash, their working directories will be identical.
 
-Thee commit hash in git is globally unique forever.  Meaning no two commit hashes will collide in our, or our children's lifetimes.
+The commit hash in git is globally unique forever.  Meaning no two commit hashes will collide in our, or our children's lifetimes.
 
-This means that a build of a commit hash today, will create the same results as the build of that commit hash in the future (dependency resolution not withstanding, but we will address that)
+This means that a build of a commit hash today, will create the same results as the build of that commit hash in the future (dependency resolution not withstanding, but we will address that later)
 
 So, what that means is that we only ever have to build any given commit once.  If we ever refer to that same commit hash in the future, we can just use the bits that we have already created.  
 
@@ -120,13 +131,13 @@ Same thing can apply to the live environment.
 
 For the live site deployments I propose that we apply a tag of the format 
 
-     rtw/yyyy/mm/dd/thh:mm:ss
+     live/yyyy/mm/dd/thh:mm:ss
 
 to the commit that was deployed to the live environment.
 
-### int-milan
+### hotfix  / int-milan
 
-Whenever the integration branch is promoted into the live branch, we would update the int-milan branch to point to the same commit.  This would drive an automated deployment of the int-milan environment Making it always at the ready to host hotfix commits if necessary to fix the live site.
+Whenever the integration branch is promoted into the live branch, we would update the hotfix (int-milan) branch to point to the same commit.  This would drive an automated deployment of the hotfix (int-milan) environment Making it always at the ready to host hotfix commits if necessary to fix the live site.
 
 ### Automatic merges
 Just like we currently have implicit integration for components hosted in perforce, we would set up an automatic merge process.  
