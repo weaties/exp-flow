@@ -22,7 +22,9 @@ parsed["Promotion_paths"].each do |to, from|
   puts `git merge #{from}`
   if !$?.success?
     puts "something has gone wrong, we should send mail, but we will stop instead"
+    puts `git merge --abort`
     exit
+
   end
   puts `git push origin #{to}`
   if !$?.success?

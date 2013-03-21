@@ -60,5 +60,3 @@ if !$?.success?
   exit
 end
 
-
-# TODO - add label making here
