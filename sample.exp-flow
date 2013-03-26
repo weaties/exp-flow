@@ -1,10 +1,10 @@
 $ cat .exp-flow
 {
     "Promotion_paths": [
-        ["integration", "master"],
-        ["int-milan", "master"],
-        ["trunk", "integration"],
-        ["dev", "trunk"]
+        ["integration", "live", "live"],
+        ["int-milan", "live", "hotfix"],
+        ["trunk", "integration",  "rti"],
+        ["master", "trunk", "rtt"]
     ]
 
 }
